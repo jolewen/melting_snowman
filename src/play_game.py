@@ -10,10 +10,10 @@ def __demo(word):
     :param word: The solution to the game to be printed to stdout
     :return: None
     """
-    if os.getenv('Demo'):
-        print('\nSTARTING DEBUGGING DEMO')
-        print(f'I chose the word "{word.word}".')
-        print(f'It contains {len(word.word)} "{word.word_underscores}".\n')
+    if os.getenv('demo'):
+        print("\nSTARTING DEBUGGING DEMO")
+        print(f"I chose the word '{word.word}'.")
+        print(f"It contains {len(word.word)} '{word.word_underscores}'.\n")
 
 
 class Game:
@@ -24,7 +24,7 @@ class Game:
         self.wrong_guesses = []
         self.number_wrong_guesses = 0
 
-    def _update_wrong_guesses(self, guess: str) -> bool:
+    def _update_wrong_guesses(self, guess: str) -> None:
         """Update the class variable containing the number of wrong guesses
         and add the most recent guess to the list of those already tried.
 
@@ -32,11 +32,15 @@ class Game:
         :return: bool whether the guess has been tried before
         """
         self.number_wrong_guesses = self.snowman.melted_levels
-        if guess not in self.wrong_guesses:
-            self.wrong_guesses.append(guess)
-            return False
-        else:
+        self.wrong_guesses.append(guess)
+
+    def _check_if_guess_is_duplicate(self, guess: str) -> bool:
+        """Check whether the guess is already contained in the made guesses"""
+        _all_guesses = self.wrong_guesses + self.correct_guesses
+        if guess in _all_guesses:
             return True
+        else:
+            return False
 
     def _check_solution_status(self) -> bool:
         """Check whether the solution matches the sum of the guesses"""
@@ -48,14 +52,13 @@ class Game:
             word_guessed = True
         return word_guessed
 
-    def _update_solution_status(self, guess) -> bool:
+    def _get_solution_status(self, guess: str) -> bool:
         """The player guessed a correct letter.
         Add the guess to the correct guesses.
 
         :param guess: The player input as a single char string
         :return: bool whether the solution is complete
         """
-        self.correct_guesses.append(guess)
         word_guessed_completely = self._check_solution_status()
         self.display_current_solution_state()
         return word_guessed_completely
@@ -63,9 +66,7 @@ class Game:
     def display_current_solution_state(self) -> None:
         """Display the solution status to stdout"""
         display_word = self.word.display_partly_solved_word(self.correct_guesses)
-        print(display_word)
-
-
+        print(f"Word: {display_word}")
 
     def get_player_input(self, prompt: str = None) -> str:
         """Prompt the player to input a single letter.
@@ -80,32 +81,38 @@ class Game:
             guess = self.get_player_input('Please insert a SINGLE character!: ')
         elif not guess.isalpha():
             guess = self.get_player_input('Please insert a LETTER!: ')
+        elif self._check_if_guess_is_duplicate(guess):
+            guess = self.get_player_input(f"You've tried '{guess}' before - Choose again: ")
         return guess
 
     def run_game(self) -> None:
         """Handle the main game loop by prompting player input
         and deciding whether the guess is correct."""
-        while not self.snowman.is_melted:
+        while True:
             guess = self.get_player_input()
+            # FIXME - INCONSISTENCY:
+            #       The state of the Word's solution is not saved in its instance
+            #       but the state of melting is tracked in the Snowman
             if guess in self.word.word:
-                print(f'YESSS! "{guess}" is in the word we are looking for!')
-                word_completely_guessed = self._update_solution_status(guess)
+                print(f"YES! '{guess}' is in the word we are looking for!")
+                self.correct_guesses.append(guess)
+                word_completely_guessed = self._get_solution_status(guess)
                 if word_completely_guessed:
-                    print(f'CONGRATULATIONS!!! You guessed all the letters of "{self.word.word}" correctly!')
+                    print(f"CONGRATULATIONS!!! You guessed all the letters of '{self.word.word}' correctly!")
                     break
             else:
-                print(f'Unfortunately "{guess}" is not correct.')
-                is_duplicate = self._update_wrong_guesses(guess)
-                if not is_duplicate:
-                    self.snowman.remove_level()
-                    self.display_current_solution_state()
-                else:
-                    print(f'You tried {guess} already.')
-                print(f"Sofar, you've tried {self.wrong_guesses}")
+                print(f"Unfortunately '{guess}' is not correct.")
+                self.wrong_guesses.append(guess)
+                self.snowman.remove_level()
+                if self.snowman.is_melted:
+                    break
+                self.display_current_solution_state()
+
+            print(f"Sofar, you've tried {self.wrong_guesses + self.correct_guesses}")
 
 
 def main() -> None:
-    print('Hello from your Melting Snowman game!')
+    print("\nHello from your Melting Snowman game!")
     game_state = Game()
     __demo(game_state.word)
     game_state.run_game()

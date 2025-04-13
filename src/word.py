@@ -4,8 +4,10 @@ WORD_CATALOGUE = ['alemannia', 'github', 'world','deepthought']
 
 class Word:
     def __init__(self):
-        self.word :str = self._random_word_picker()
-        self.word_underscores :str = '_' * len(self.word)
+        self.word = self._random_word_picker()
+        self._word_as_list = [l for l in self.word]
+        self.word_underscores = '_' * len(self.word)
+        self.word_completely_guessed = False
 
     @staticmethod
     def _random_word_picker() -> str:
