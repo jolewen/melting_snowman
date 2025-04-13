@@ -13,10 +13,9 @@ class Snowman:
         self.new_ascii_lines = [idx for idx,ltr in enumerate(self.ascii_graphic) if ltr == '\n']
 
     def remove_level(self):
-        if self.melted_levels < 3:
-            self.ascii_graphic = self.ascii_graphic[:self.new_ascii_lines.pop()]
-            self.melted_levels += 1
-        else:
+        self.melted_levels += 1
+        self.ascii_graphic = self.ascii_graphic[:self.new_ascii_lines.pop()]
+        if self.melted_levels >= 3:
             self.melted = True
             print(f'The snowman has completely melted :\'( ')
         print(self.ascii_graphic)
