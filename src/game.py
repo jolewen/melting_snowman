@@ -1,16 +1,8 @@
 import os
 from random import randint
 
+WORD_CATALOGUE = ['Alemannia', 'github', 'world','Deepthought']
 
-WORD_CATALOGUE = {'0': 'Alemannia', '1': 'github', '2': 'world', '3': 'Deepthought'}
-
-def main() -> None:
-    print('Hello from your Snowman game!')
-    word = Word()
-    if os.getenv('Demo'):
-        print('\nSTARTING DEBUGGING DEMO')
-        print(f'I chose the word "{word.word}".')
-        print(f'It contains {len(word.word)} "{word.word_underscores}".')
 
 class Word:
     def __init__(self):
@@ -19,10 +11,26 @@ class Word:
 
     @staticmethod
     def _random_word_picker() -> str:
-        return WORD_CATALOGUE[str(randint(a=0, b=3))]
+        return WORD_CATALOGUE[randint(a=0, b=len(WORD_CATALOGUE)-1)]
 
-def word_guesser():
-    pass
+
+def __demo(word):
+    if os.getenv('Demo'):
+        print('\nSTARTING DEBUGGING DEMO')
+        print(f'I chose the word "{word.word}".')
+        print(f'It contains {len(word.word)} "{word.word_underscores}".\n')
+
+
+def start_game():
+    guess = input('Please guess a letter: ').lower()
+    print(guess)
+
+
+def main() -> None:
+    print('Hello from your Snowman game!')
+    word = Word()
+    __demo(word)
+    start_game()
 
 
 if __name__ == '__main__':
