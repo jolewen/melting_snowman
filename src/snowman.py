@@ -21,7 +21,6 @@ class Snowman:
     def remove_level(self) -> None:
         self.melted_levels += 1
         self.ascii_graphic = self.ascii_graphic[:self.new_ascii_lines.pop()]
-        print(self.new_ascii_lines)
         if self.melted_levels >= self.game_loop_length-2:
             self.is_melted = True
             print(f'The snowman has completely melted :\'( ')

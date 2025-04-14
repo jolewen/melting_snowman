@@ -3,8 +3,11 @@ from random import randint
 WORD_CATALOGUE = ['alemannia', 'github', 'world','deepthought']
 
 class Word:
-    def __init__(self):
+    def __init__(self, last_word: str = None):
         self.word = self._random_word_picker()
+        while self.word == last_word:
+            print(self.word)
+            self.word = self._random_word_picker()
         self.word_underscores = '_' * len(self.word)
         self._word_as_list = [l for l in self.word]
         self._word_underscores_as_list = ['_' for j in range(len(self.word))]
@@ -13,6 +16,11 @@ class Word:
     @staticmethod
     def _random_word_picker() -> str:
         return WORD_CATALOGUE[randint(a=0, b=len(WORD_CATALOGUE)-1)]
+
+    def display_current_solution_state(self, correct_guesses: list) -> None:
+        """Display the solution status to stdout"""
+        display_word = self.word.generate_partly_solved_word(correct_guesses)
+        print(f"\nWord: {display_word}")
 
     def generate_partly_solved_word(self, correct_guesses: list) -> str:
         """Generate a visually easier to read version of the (partially) solved word"""
