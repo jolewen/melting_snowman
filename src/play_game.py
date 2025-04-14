@@ -16,10 +16,10 @@ def _demo(word):
         print(f"It contains {len(word.word)} '{word.word_underscores}'.")
 
 
-def restart_game() -> None:
+def ask_restart_game(last_word) -> None:
     restart = input(f"\nDo you want to restart the game? (y/<any>)").lower()
     if restart == 'y':
-        main()
+        main(last_word)
     else:
         print("Goodbye! :-)")
 
@@ -130,10 +130,11 @@ class Game:
                 self._handle_wrong_guess(guess)
                 if self.snowman.is_melted:
                     self._show_state_of_game()
+                    print(f"The correct answer would have been '{self.word.word}'")
                     break
                 self._show_state_of_game()
 
-        restart_game()
+        ask_restart_game(self.word.word)
 
 
 def main(last_word: str = None) -> None:
