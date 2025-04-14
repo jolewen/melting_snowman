@@ -16,9 +16,17 @@ def _demo(word):
         print(f"It contains {len(word.word)} '{word.word_underscores}'.")
 
 
+def restart_game() -> None:
+    restart = input(f"\nDo you want to restart the game? (y/<any>)").lower()
+    if restart == 'y':
+        main()
+    else:
+        print("Goodbye! :-)")
+
+
 class Game:
-    def __init__(self):
-        self.word = Word()
+    def __init__(self, last_word: str = None):
+        self.word = Word(last_word)
         self.snowman = Snowman()
         self.correct_guesses = []
         self.wrong_guesses = []
@@ -60,13 +68,25 @@ class Game:
         :return: bool whether the solution is complete
         """
         word_guessed_completely = self._check_solution_status()
-        self.display_current_solution_state()
+        self.word.display_current_solution_state(self.correct_guesses)
         return word_guessed_completely
 
-    def display_current_solution_state(self) -> None:
-        """Display the solution status to stdout"""
-        display_word = self.word.generate_partly_solved_word(self.correct_guesses)
-        print(f"Word: {display_word}")
+    def _handle_correct_guess(self, guess):
+        print(f"YES! '{guess}' is in the word we are looking for!")
+        self.correct_guesses.append(guess)
+        self.word.resolve_single_correct_letter(guess)
+
+    def _handle_wrong_guess(self, guess):
+        print(f"Unfortunately '{guess}' is not correct.")
+        self.wrong_guesses.append(guess)
+        self.snowman.remove_level()
+
+    def _show_state_of_game(self):
+        self.word.display_current_solution_state(self.correct_guesses)
+        self.snowman.show_snowman()
+
+    def show_history(self) -> None:
+        print(f"Sofar, you've tried {self.wrong_guesses + self.correct_guesses}")
 
     def get_player_input(self, prompt: str = None) -> str:
         """Prompt the player to input a single letter.
@@ -94,37 +114,33 @@ class Game:
         """Handle the main game loop by prompting player input
         and deciding whether the guess is correct."""
         self.snowman.show_snowman()
-        self.display_current_solution_state()
+        self.word.display_current_solution_state(self.correct_guesses)
+        print(f'You get {self.snowman.game_loop_length} guesses, good luck!')
         while True:
             guess = self.get_player_input()
             if guess in self.word.word:
-                print(f"YES! '{guess}' is in the word we are looking for!")
-                self.correct_guesses.append(guess)
-                self.word.resolve_single_correct_letter(guess)
-                self.display_current_solution_state()
-                self.snowman.show_snowman()
+                self._handle_correct_guess(guess)
                 if self.word.word_solved:
                     print(f"CONGRATULATIONS!!! You guessed all the letters of '{self.word.word}' correctly!")
+                    self._show_state_of_game()
                     break
+                self._show_state_of_game()
+
             else:
-                print(f"Unfortunately '{guess}' is not correct.")
-                self.wrong_guesses.append(guess)
-                self.snowman.remove_level()
+                self._handle_wrong_guess(guess)
                 if self.snowman.is_melted:
+                    self._show_state_of_game()
                     break
-                self.display_current_solution_state()
-                self.snowman.show_snowman()
+                self._show_state_of_game()
+
+        restart_game()
 
 
-
-    def show_history(self):
-        print(f"Sofar, you've tried {self.wrong_guesses + self.correct_guesses}")
-
-
-def main() -> None:
+def main(last_word: str = None) -> None:
     print("\nHello from your Melting Snowman game!")
-    game_state = Game()
-    _demo(game_state.word)
+    game_state = Game(last_word)
+    # use this demo to preview the word, e.g. for debugging purposes
+    # _demo(game_state.word)
     game_state.run_game()
 
 
