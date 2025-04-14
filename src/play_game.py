@@ -5,7 +5,7 @@ from word import Word
 from snowman import Snowman
 
 
-def __demo(word):
+def _demo(word):
     """A debugging tool to display the word for control
     :param word: The solution to the game to be printed to stdout
     :return: None
@@ -13,7 +13,7 @@ def __demo(word):
     if os.getenv('demo'):
         print("\nSTARTING DEBUGGING DEMO")
         print(f"I chose the word '{word.word}'.")
-        print(f"It contains {len(word.word)} '{word.word_underscores}'.\n")
+        print(f"It contains {len(word.word)} '{word.word_underscores}'.")
 
 
 class Game:
@@ -65,7 +65,7 @@ class Game:
 
     def display_current_solution_state(self) -> None:
         """Display the solution status to stdout"""
-        display_word = self.word.display_partly_solved_word(self.correct_guesses)
+        display_word = self.word.generate_partly_solved_word(self.correct_guesses)
         print(f"Word: {display_word}")
 
     def get_player_input(self, prompt: str = None) -> str:
@@ -76,8 +76,13 @@ class Game:
         """
         if not prompt:
             prompt = 'Please guess a letter: '
-        guess = str(input(prompt)).lower()
-        if len(guess) > 1:
+        guess = str(input(f'\n{prompt}')).lower()
+        if guess == '.hist':
+            self.show_history()
+            self.get_player_input()
+        elif guess == '.exit' or guess == '.quit':
+            exit(1)
+        elif len(guess) > 1:
             guess = self.get_player_input('Please insert a SINGLE character!: ')
         elif not guess.isalpha():
             guess = self.get_player_input('Please insert a LETTER!: ')
@@ -88,16 +93,17 @@ class Game:
     def run_game(self) -> None:
         """Handle the main game loop by prompting player input
         and deciding whether the guess is correct."""
+        self.snowman.show_snowman()
+        self.display_current_solution_state()
         while True:
             guess = self.get_player_input()
-            # FIXME - INCONSISTENCY:
-            #       The state of the Word's solution is not saved in its instance
-            #       but the state of melting is tracked in the Snowman
             if guess in self.word.word:
                 print(f"YES! '{guess}' is in the word we are looking for!")
                 self.correct_guesses.append(guess)
-                word_completely_guessed = self._get_solution_status(guess)
-                if word_completely_guessed:
+                self.word.resolve_single_correct_letter(guess)
+                self.display_current_solution_state()
+                self.snowman.show_snowman()
+                if self.word.word_solved:
                     print(f"CONGRATULATIONS!!! You guessed all the letters of '{self.word.word}' correctly!")
                     break
             else:
@@ -107,14 +113,18 @@ class Game:
                 if self.snowman.is_melted:
                     break
                 self.display_current_solution_state()
+                self.snowman.show_snowman()
 
-            print(f"Sofar, you've tried {self.wrong_guesses + self.correct_guesses}")
+
+
+    def show_history(self):
+        print(f"Sofar, you've tried {self.wrong_guesses + self.correct_guesses}")
 
 
 def main() -> None:
     print("\nHello from your Melting Snowman game!")
     game_state = Game()
-    __demo(game_state.word)
+    _demo(game_state.word)
     game_state.run_game()
 
 
