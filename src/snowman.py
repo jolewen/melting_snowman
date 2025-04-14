@@ -13,7 +13,7 @@ class Snowman:
       (   :   )
        (  |  )"""
         self.new_ascii_lines = [idx for idx,ltr in enumerate(self.ascii_graphic) if ltr == '\n']
-        self.game_loop_length = len(self.new_ascii_lines)
+        self.game_loop_length = len(self.new_ascii_lines) -2
 
     def show_snowman(self) -> None:
         print(self.ascii_graphic)
@@ -21,7 +21,7 @@ class Snowman:
     def remove_level(self) -> None:
         self.melted_levels += 1
         self.ascii_graphic = self.ascii_graphic[:self.new_ascii_lines.pop()]
-        if self.melted_levels >= self.game_loop_length-2:
+        if self.melted_levels >= self.game_loop_length:
             self.is_melted = True
             print(f'The snowman has completely melted :\'( ')
         # print(self.ascii_graphic)
@@ -33,4 +33,3 @@ if __name__ == '__main__':
     while i < 5:
         snowman.remove_level()
         i += 1
-

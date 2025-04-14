@@ -6,7 +6,6 @@ class Word:
     def __init__(self, last_word: str = None):
         self.word = self._random_word_picker()
         while self.word == last_word:
-            print(self.word)
             self.word = self._random_word_picker()
         self.word_underscores = '_' * len(self.word)
         self._word_as_list = [l for l in self.word]
@@ -19,7 +18,7 @@ class Word:
 
     def display_current_solution_state(self, correct_guesses: list) -> None:
         """Display the solution status to stdout"""
-        display_word = self.word.generate_partly_solved_word(correct_guesses)
+        display_word = self.generate_partly_solved_word(correct_guesses)
         print(f"\nWord: {display_word}")
 
     def generate_partly_solved_word(self, correct_guesses: list) -> str:
